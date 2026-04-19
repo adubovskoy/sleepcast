@@ -1,0 +1,22 @@
+[Unit]
+Description=Sleepcast - YouTube audio player
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/srv/sleepcast
+ExecStart=/srv/sleepcast/sleepcast
+Restart=on-failure
+RestartSec=3
+Environment=SLEEPCAST_ADDR=:5005
+Environment=SLEEPCAST_DATA_DIR=/srv/sleepcast/data
+
+# Basic hardening
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,67 @@
+version: '3'
+
+vars:
+  HOST: root@144.31.196.67
+  REMOTE_DIR: /srv/sleepcast
+  SERVICE: sleepcast
+
+tasks:
+  default:
+    cmds:
+      - task --list
+
+  build:
+    desc: Build locally for development
+    cmds:
+      - mkdir -p dist
+      - go build -o dist/sleepcast .
+
+  build:linux:
+    desc: Cross-compile static binary for linux/amd64
+    cmds:
+      - mkdir -p dist
+      - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -ldflags='-s -w' -o dist/sleepcast-linux-amd64 .
+
+  deploy:
+    desc: Build, upload, and restart sleepcast on {{.HOST}}
+    deps: [build:linux]
+    cmds:
+      # Ensure remote layout exists.
+      - ssh {{.HOST}} "mkdir -p {{.REMOTE_DIR}} {{.REMOTE_DIR}}/data"
+      # Upload binary to a staging name so the running binary keeps executing.
+      - rsync -az --info=progress2 dist/sleepcast-linux-amd64 {{.HOST}}:{{.REMOTE_DIR}}/sleepcast.new
+      # Upload web assets (safe to --delete since web/ is versioned).
+      - rsync -az --delete web/ {{.HOST}}:{{.REMOTE_DIR}}/web/
+      # Install / refresh the systemd unit.
+      - rsync -az deploy/sleepcast.service {{.HOST}}:/etc/systemd/system/{{.SERVICE}}.service
+      # Atomically swap the binary and restart.
+      - |
+        ssh {{.HOST}} '
+          set -e
+          mv {{.REMOTE_DIR}}/sleepcast.new {{.REMOTE_DIR}}/sleepcast
+          chmod +x {{.REMOTE_DIR}}/sleepcast
+          systemctl daemon-reload
+          systemctl enable {{.SERVICE}} >/dev/null
+          systemctl restart {{.SERVICE}}
+          systemctl --no-pager --lines=0 status {{.SERVICE}}
+        '
+
+  logs:
+    desc: Tail remote logs
+    cmds:
+      - ssh {{.HOST}} "journalctl -u {{.SERVICE}} -f"
+
+  status:
+    desc: Remote service status
+    cmds:
+      - ssh {{.HOST}} "systemctl --no-pager status {{.SERVICE}}"
+
+  restart:
+    desc: Restart remote service
+    cmds:
+      - ssh {{.HOST}} "systemctl restart {{.SERVICE}} && systemctl --no-pager --lines=0 status {{.SERVICE}}"
+
+  stop:
+    desc: Stop remote service
+    cmds:
+      - ssh {{.HOST}} "systemctl stop {{.SERVICE}}"

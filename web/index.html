@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Sleepcast</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <h1>Sleepcast</h1>
+  </header>
+
+  <main>
+    <section id="input-section">
+      <form id="url-form">
+        <input id="url-input" type="text" placeholder="paste a YouTube URL" autocomplete="off" spellcheck="false" autofocus>
+        <button type="submit" id="play-btn">Play</button>
+      </form>
+      <div id="status" class="muted"></div>
+    </section>
+
+    <section id="player-section" hidden>
+      <div class="card">
+        <div id="player-title" class="title">—</div>
+        <audio id="audio" preload="auto"></audio>
+        <div class="timeline">
+          <span id="cur-time">0:00</span>
+          <input id="scrubber" type="range" min="0" max="0" step="1" value="0">
+          <span id="dur-time">0:00</span>
+        </div>
+      </div>
+
+      <div class="transport">
+        <button class="skip" data-seek="-15" aria-label="Back 15 seconds">«</button>
+        <button id="play-pause" class="play-main" aria-label="Play">Play</button>
+        <button class="skip" data-seek="15" aria-label="Forward 15 seconds">»</button>
+      </div>
+
+      <div class="sleep">
+        <label>Sleep timer
+          <select id="sleep-select">
+            <option value="0">off</option>
+            <option value="600">10 min</option>
+            <option value="1200">20 min</option>
+            <option value="1800">30 min</option>
+            <option value="2700">45 min</option>
+            <option value="3600">60 min</option>
+          </select>
+        </label>
+        <span id="sleep-countdown" class="muted"></span>
+      </div>
+    </section>
+
+    <div id="toast" hidden></div>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
