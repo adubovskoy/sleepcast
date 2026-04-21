@@ -29,7 +29,8 @@ func (s *Server) Routes() http.Handler {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /{$}", s.serveIndex)
-	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir(s.WebDir))))
+	static := http.StripPrefix("/static/", http.FileServer(http.Dir(s.WebDir)))
+	mux.Handle("GET /static/", noCache(static))
 
 	mux.HandleFunc("POST /api/play", s.handlePlay)
 	mux.HandleFunc("GET /api/status", s.handleStatus)
@@ -40,7 +41,21 @@ func (s *Server) Routes() http.Handler {
 }
 
 func (s *Server) serveIndex(w http.ResponseWriter, r *http.Request) {
+	setNoCacheHeaders(w)
 	http.ServeFile(w, r, filepath.Join(s.WebDir, "index.html"))
+}
+
+func noCache(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		setNoCacheHeaders(w)
+		h.ServeHTTP(w, r)
+	})
+}
+
+func setNoCacheHeaders(w http.ResponseWriter) {
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Expires", "0")
 }
 
 type playReq struct {

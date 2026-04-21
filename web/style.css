@@ -111,6 +111,30 @@ main { flex: 1; display: flex; flex-direction: column; }
 .sleep { display: flex; gap: 0.8rem; align-items: center; justify-content: center; font-size: 0.95em; padding-bottom: 0.5rem; }
 select { background: #0c0d10; color: var(--fg); border: 1px solid #333; border-radius: 4px; padding: 0.3rem 0.4rem; }
 
+/* History */
+#history-section { margin-top: 0.8rem; }
+.history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; }
+.link-btn { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 0.85em; padding: 0; }
+.link-btn:hover { color: var(--fg); }
+#history-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.3rem; }
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--card);
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.history-item:hover { background: #22252c; }
+.history-item.active { border-color: var(--accent); }
+.history-item .h-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.92em; }
+.history-item .h-pos { color: var(--muted); font-size: 0.8em; font-variant-numeric: tabular-nums; }
+.history-item .h-del { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 1.1em; padding: 0 0.2rem; line-height: 1; }
+.history-item .h-del:hover { color: #e66; }
+
 /* Toast */
 #toast {
   position: fixed;
