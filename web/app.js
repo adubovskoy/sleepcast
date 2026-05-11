@@ -297,17 +297,9 @@
     savePositionIfPlaying(true);
   });
 
-  audio.addEventListener('ended', async () => {
+  audio.addEventListener('ended', () => {
     if (!currentVideoId) return;
     updateHistoryPosition(currentVideoId, 0);
-    try {
-      await fetch('/api/finished', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ videoId: currentVideoId }),
-      });
-      showToast('Audio cleaned up on server.');
-    } catch {}
   });
 
   document.addEventListener('visibilitychange', () => {

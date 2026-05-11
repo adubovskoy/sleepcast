@@ -2,27 +2,22 @@ package server
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
-	"errors"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"sleepcast/internal/cleanup"
 	"sleepcast/internal/storage"
 	ytint "sleepcast/internal/youtube"
 )
 
 type Server struct {
-	DB      *storage.DB
-	Media   *storage.Media
-	Jobs    *ytint.JobTracker
-	Cleaner *cleanup.Cleaner
-	WebDir  string
+	DB     *storage.DB
+	Media  *storage.Media
+	Jobs   *ytint.JobTracker
+	WebDir string
 }
 
 func (s *Server) Routes() http.Handler {
@@ -35,7 +30,6 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("POST /api/play", s.handlePlay)
 	mux.HandleFunc("GET /api/status", s.handleStatus)
 	mux.HandleFunc("GET /media/", s.handleMedia)
-	mux.HandleFunc("POST /api/finished", s.handleFinished)
 
 	return mux
 }
@@ -160,24 +154,6 @@ func (s *Server) handleMedia(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "audio/mp4")
 	http.ServeContent(w, r, vid+".m4a", stat.ModTime(), f)
-}
-
-type finishedReq struct {
-	VideoID string `json:"videoId"`
-}
-
-func (s *Server) handleFinished(w http.ResponseWriter, r *http.Request) {
-	var body finishedReq
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil || !validVideoID(body.VideoID) {
-		writeError(w, http.StatusBadRequest, "invalid videoId")
-		return
-	}
-	if err := s.Cleaner.PurgeOne(body.VideoID); err != nil && !errors.Is(err, sql.ErrNoRows) {
-		log.Printf("finished: purge: %v", err)
-		writeError(w, http.StatusInternalServerError, "purge")
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
 }
 
 func writeJSON(w http.ResponseWriter, v any) {

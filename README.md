@@ -22,7 +22,7 @@ Open <http://localhost:5005>, paste a YouTube URL, hit **Play**.
 - Player: play/pause, ±15s, ±30s, scrubber.
 - Sleep timer: off / 10 / 20 / 30 / 45 / 60 min.
 - `navigator.mediaSession` → lock-screen controls on mobile.
-- Auto-clean: file deleted when playback ends, plus a 7-day TTL sweep.
+- Auto-clean: 7-day TTL sweep removes stale downloads.
 - Cached: playing the same URL twice skips the download.
 
 ## Config (all optional)

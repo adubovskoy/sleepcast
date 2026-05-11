@@ -2,7 +2,6 @@ package cleanup
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"io/fs"
 	"log"
@@ -18,21 +17,6 @@ type Cleaner struct {
 	DB       *storage.DB
 	Media    *storage.Media
 	TTLHours int
-}
-
-// PurgeOne deletes the file and DB row for videoID. Missing file is not an error.
-func (c *Cleaner) PurgeOne(videoID string) error {
-	d, err := c.DB.GetDownload(videoID)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil
-		}
-		return err
-	}
-	if err := os.Remove(d.Filepath); err != nil && !errors.Is(err, fs.ErrNotExist) {
-		log.Printf("cleanup: remove %s: %v", d.Filepath, err)
-	}
-	return c.DB.DeleteDownload(videoID)
 }
 
 func (c *Cleaner) SweepExpired() error {

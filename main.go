@@ -42,11 +42,10 @@ func main() {
 	}
 
 	srv := &server.Server{
-		DB:      db,
-		Media:   media,
-		Jobs:    ytint.NewJobTracker(),
-		Cleaner: cleaner,
-		WebDir:  "web",
+		DB:     db,
+		Media:  media,
+		Jobs:   ytint.NewJobTracker(),
+		WebDir: "web",
 	}
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
